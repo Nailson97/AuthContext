@@ -3,6 +3,7 @@ import { AuthContext } from "../context/AuthContext";
 import { parseCookies } from "nookies";
 import styles from "../styles/Home.module.css";
 import { GetServerSideProps } from "next";
+import { witchSSRGuest } from "@/utils/witchSSRGuest";
 
 export default function Home() {
   const [email, setEmail] = useState("");
@@ -38,19 +39,8 @@ export default function Home() {
   );
 }
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const cookies = parseCookies(ctx);
-
-  if (cookies["auth.token"]) {
-    return {
-      redirect: {
-        destination: "/dashboard",
-        permanent: false,
-      },
-    };
-  }
-
+export const getServerSideProps = witchSSRGuest(async (ctx) => {
   return {
     props: {},
   };
-};
+});
