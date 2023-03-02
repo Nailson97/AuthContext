@@ -1,5 +1,8 @@
 import { AuthContext } from "@/context/AuthContext"
-import { api } from "@/services/api"
+import { setupAPIClient } from "@/services/api";
+import { api } from "@/services/apiClient";
+
+import { witchSSRAuth } from "@/utils/witchSSRAuth"
 import { useContext, useEffect } from "react"
 
 export default function Dashboard() {
@@ -14,3 +17,16 @@ export default function Dashboard() {
         <h1>Dashboard: {user?.email}</h1>
     )
 }
+
+export const getServerSideProps = witchSSRAuth( async(ctx) => {
+    const apiClient = setupAPIClient(ctx)
+    const response = await apiClient.get('/me')
+
+    console.log(response.data)
+
+    return {
+        props: {
+            
+        }
+    }
+})
