@@ -1,5 +1,6 @@
+import { AuthTokenError } from './../services/errors/AuthTokenError';
 import { GetServerSideProps, GetServerSidePropsContext, GetServerSidePropsResult } from "next";
-import { parseCookies } from "nookies";
+import { destroyCookie, parseCookies } from "nookies";
 
 export function witchSSRAuth<P>(fn: GetServerSideProps<P>) {
   return async (ctx: GetServerSidePropsContext): Promise<GetServerSidePropsResult<P>> => {
@@ -13,6 +14,20 @@ export function witchSSRAuth<P>(fn: GetServerSideProps<P>) {
         },
       };
     }
-    return await fn(ctx)
+    try {
+      return await fn(ctx);
+    } catch (err) {
+    if (err instanceof AuthTokenError) {
+      destroyCookie(ctx, "auth.token");
+      destroyCookie(ctx, "auth.refreshToken");
+
+      return {
+         redirect: {
+          destination: "/",
+          permanent: false,
+        },
+      };
+    }
+    }
   };
 }

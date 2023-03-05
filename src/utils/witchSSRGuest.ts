@@ -13,6 +13,7 @@ export function witchSSRGuest<P>(fn: GetServerSideProps<P>) {
         },
       };
     }
+    
     return await fn(ctx)
   };
 }
