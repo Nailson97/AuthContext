@@ -1,4 +1,4 @@
-import { Can } from "@/components/can";
+import { Can } from "@/components/Can";
 import { AuthContext } from "@/context/AuthContext";
 import { setupAPIClient } from "@/services/api";
 import { api } from "@/services/apiClient";
