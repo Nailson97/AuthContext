@@ -6,7 +6,7 @@ import { witchSSRAuth } from "@/utils/witchSSRAuth";
 import { useContext, useEffect } from "react";
 
 export default function Dashboard() {
-  const { user } = useContext(AuthContext);
+  const { user, signOut } = useContext(AuthContext);
 
   useEffect(() => {
     api.get("/me")
@@ -17,6 +17,9 @@ export default function Dashboard() {
   return (
    <>
      <h1>Dashboard: {user?.email}</h1>
+
+    <button onClick={signOut}>Sign olt</button>
+
      <Can permissions={['metrics.list']}>
        <div>Metrics</div> 
      </Can>

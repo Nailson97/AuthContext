@@ -20,23 +20,39 @@ interface User {
 }
 
 interface AuthContext {
-  signIn(credentials: SigninCredentials): Promise<void>;
+  signIn: (credentials: SigninCredentials) => Promise<void>;
+  signOut: () => void
   isAuthenticated: boolean;
   user: User;
 }
 
 export const AuthContext = createContext({} as AuthContext);
 
+let authChannel: BroadcastChannel
+
 export function signOut() {
   destroyCookie(undefined, "auth.token");
   destroyCookie(undefined, "auth.refreshToken");
-
+  authChannel.postMessage('signOut');
   Router.push("/");
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [user, setUser] = useState<User>();
   const isAuthenticated = !!user;
+
+  useEffect(() => {
+    authChannel = new BroadcastChannel('auth')
+    authChannel.onmessage = (message) => {
+      switch (message.data) {
+        case 'signOut': 
+        Router.push('/');
+        break;
+        default:
+        break;
+      };
+    }
+  })
 
   useEffect(() => {
     const { "auth.token": token } = parseCookies();
@@ -82,13 +98,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
       api.defaults.headers["Authorization"] = `Bearer ${token}`;
 
       Router.push("/dashboard");
+
     } catch (error) {
       console.log(error);
     }
   }
 
   return (
-    <AuthContext.Provider value={{ signIn, isAuthenticated, user }}>
+    <AuthContext.Provider value={{ signIn, signOut, isAuthenticated, user }}>
       {children}
     </AuthContext.Provider>
   );
